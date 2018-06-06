@@ -5,17 +5,18 @@ import (
 	"net/http"
 
 	"github.com/apex/log"
-	"github.com/aws/aws-lambda-go/events"
+	"github.com/thedanielforum/lambda-go-utils/events"
+	"github.com/thedanielforum/lambda-go-utils/headers"
 )
 
-// HTTPResponse formats http response
-func HTTPResponse(status int, body interface{}, headers Headers) events.APIGatewayProxyResponse {
+// OK formats http response
+func OK(status int, body interface{}, headers headers.Headers) events.APIGatewayProxyResponse {
 	// JSON encode body
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
 		log.WithError(err).Error("failed to Marshal response body")
 		// return error instead
-		return HTTPError(http.StatusInternalServerError, err, headers)
+		return Error(http.StatusInternalServerError, err, headers)
 	}
 
 	return events.APIGatewayProxyResponse{
@@ -30,7 +31,8 @@ type ErrMsg struct {
 	Message string `json:"message"`
 }
 
-func HTTPError(status int, err error, headers Headers) events.APIGatewayProxyResponse {
+// Error response
+func Error(status int, err error, headers headers.Headers) events.APIGatewayProxyResponse {
 	msg := "Internal server error"
 	if err != nil {
 		msg = err.Error()
